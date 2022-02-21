@@ -1,2 +1,7 @@
-# dydl
-DYDL is a command-line program implemented with NodeJS that can obtain the video stream address of the Douyu live.
+# DYDL
+
+DYDL是一个用NodeJS实现的，可以获取斗鱼直播间视频流地址的命令行程序。
+
+逻辑参考了[DouyuEx](https://greasyfork.org/zh-CN/scripts/394497-douyuex-%E6%96%97%E9%B1%BC%E7%9B%B4%E6%92%AD%E9%97%B4%E5%A2%9E%E5%BC%BA%E6%8F%92%E4%BB%B6)，使其脱离浏览器环境也可以实现。
+
+# To-do List
