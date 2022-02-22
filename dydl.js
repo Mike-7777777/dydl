@@ -12,14 +12,14 @@ const rid = args[0];
 const localAddress = "downloads/";
 localAddress = args[1];
 const filename = rid + getNowFormatDate() + ".xs";
-
+const video_length = args[2];
 console.log(filename)
 
 const Url = "https://m.douyu.com/" + rid;
 const dl_link = getUv()
 dl_link.then(res=> {
   console.log(res)
-  dl(res,localAddress,filename)
+  dl(res,localAddress,filename,video_length)
 })
 
 // http://tx2play1.douyucdn.cn/live/1819564rU1KnDSWc.xs
@@ -88,7 +88,7 @@ async function getUrl(r, param) {
   return realLive;
 }
 
-async function dl(httpAddress, localAddress, filename) {
+async function dl(httpAddress, localAddress, filename, time) {
   const readable = download(httpAddress);
   const writable = fs.createWriteStream(localAddress + filename);
   readable.pipe(writable);
@@ -97,7 +97,7 @@ async function dl(httpAddress, localAddress, filename) {
     readable.unpipe(writable);
     console.log("Manually close the file stream.");
     writable.end();
-  }, 1000);
+  }, time);
 }
 // function write2file(name, content) {
 //   try {
