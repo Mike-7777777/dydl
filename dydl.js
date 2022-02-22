@@ -4,23 +4,26 @@ import md5 from "crypto-js/md5.js";
 import diy from "./diy.js";
 import download from "download";
 
-
+// testrun: node dydl.js 1819564 "downloads/" 1000
 // const rid = diy.room_id;
 // const httpAddress = "http://tx2play1.douyucdn.cn/live/1819564rKlX79tyB.xs";
 const args = process.argv.slice(2);
 const rid = args[0];
-const localAddress = "downloads/";
-localAddress = args[1];
-const filename = rid + getNowFormatDate() + ".xs";
+const localAddress = args[1];
+const filename = "/" + rid + getNowFormatDate() + ".xs";
 const video_length = args[2];
-console.log(filename)
+if (!fs.existsSync(localAddress)) {
+  fs.mkdirSync(localAddress);
+}
+
+console.log(localAddress + filename);
 
 const Url = "https://m.douyu.com/" + rid;
-const dl_link = getUv()
-dl_link.then(res=> {
-  console.log(res)
-  dl(res,localAddress,filename,video_length)
-})
+const dl_link = getUv();
+dl_link.then((res) => {
+  console.log(res);
+  dl(res, localAddress, filename, video_length);
+});
 
 // http://tx2play1.douyucdn.cn/live/1819564rU1KnDSWc.xs
 
@@ -124,13 +127,23 @@ function getNowFormatDate() {
   var month = date.getMonth() + 1;
   var strDate = date.getDate();
   if (month >= 1 && month <= 9) {
-      month = "0" + month;
+    month = "0" + month;
   }
   if (strDate >= 0 && strDate <= 9) {
-      strDate = "0" + strDate;
+    strDate = "0" + strDate;
   }
-  var currentdate = seperator1 + year + seperator1 + month + seperator1 + strDate
-          + seperator1 +date.getHours() + seperator2 + date.getMinutes()
-          + seperator2 + date.getSeconds();
+  var currentdate =
+    seperator1 +
+    year +
+    seperator1 +
+    month +
+    seperator1 +
+    strDate +
+    seperator1 +
+    date.getHours() +
+    seperator2 +
+    date.getMinutes() +
+    seperator2 +
+    date.getSeconds();
   return currentdate;
 }
