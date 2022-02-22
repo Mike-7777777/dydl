@@ -7,6 +7,8 @@ DYDL是一个用NodeJS实现的，可以获取斗鱼直播间视频流地址的�
 # 使用方法
 
 ```
+npm install
+
 dydl.js [房间号]
 ```
 
