@@ -9,8 +9,8 @@ import download from "download";
 // const httpAddress = "http://tx2play1.douyucdn.cn/live/1819564rKlX79tyB.xs";
 const args = process.argv.slice(2);
 const rid = args[0];
-
 const localAddress = "downloads/";
+localAddress = args[1];
 const filename = rid + getNowFormatDate() + ".xs";
 
 console.log(filename)
@@ -18,7 +18,7 @@ console.log(filename)
 const Url = "https://m.douyu.com/" + rid;
 const dl_link = getUv()
 dl_link.then(res=> {
-  // console.log(res)
+  console.log(res)
   dl(res,localAddress,filename)
 })
 
@@ -129,8 +129,8 @@ function getNowFormatDate() {
   if (strDate >= 0 && strDate <= 9) {
       strDate = "0" + strDate;
   }
-  var currentdate = year + seperator1 + month + seperator1 + strDate
-          + date.getHours() + seperator2 + date.getMinutes()
+  var currentdate = seperator1 + year + seperator1 + month + seperator1 + strDate
+          + seperator1 +date.getHours() + seperator2 + date.getMinutes()
           + seperator2 + date.getSeconds();
   return currentdate;
 }
