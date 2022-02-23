@@ -3,29 +3,41 @@ import fs from "fs";
 import md5 from "crypto-js/md5.js";
 import diy from "./diy.js";
 import download from "download";
-
+import ffmpeg from "js-ffmpeg";
 // testrun: node dydl.js 1819564 "downloads/" 1000
 // const rid = diy.room_id;
-// const httpAddress = "http://tx2play1.douyucdn.cn/live/1819564rKlX79tyB.xs";
+
 const args = process.argv.slice(2);
-const rid = args[0];
-const localAddress = args[1];
-const filename = "/" + rid + getNowFormatDate() + ".xs";
-const video_length = args[2];
+const video = args[0];
+const rid = args[1];
+const localAddress = args[2];
+const filename = rid + getNowFormatDate();
+let video_length = 0
+if(video == 0){
+  video_length = 300;
+}else{
+  video_length = args[3];
+}
 if (!fs.existsSync(localAddress)) {
   fs.mkdirSync(localAddress);
 }
 
-console.log(localAddress + filename);
+console.log(localAddress + "/" + filename + ".xs");
 
 const Url = "https://m.douyu.com/" + rid;
-const dl_link = getUv();
-dl_link.then((res) => {
+getUv().then((res) => {
   console.log(res);
-  dl(res, localAddress, filename, video_length);
+  dl(res, localAddress, filename, video_length).then((res) => {
+    console.log(res);
+    if (video == 0) {
+      let from = localAddress+"/"+filename + ".xs";
+    let opts = "-ss 00:00:00 -r 1 -vframes 1 -an -f mjpeg";
+    let dist = localAddress+"/"+filename +".jpg";
+    ffmpeg
+    .ffmpeg(from, opts,dist);
+    }
+  })
 });
-
-// http://tx2play1.douyucdn.cn/live/1819564rU1KnDSWc.xs
 
 async function getUv() {
   try {
@@ -93,13 +105,14 @@ async function getUrl(r, param) {
 
 async function dl(httpAddress, localAddress, filename, time) {
   const readable = download(httpAddress);
-  const writable = fs.createWriteStream(localAddress + filename);
+  const writable = fs.createWriteStream(localAddress + "/" + filename + ".xs");
   readable.pipe(writable);
   setTimeout(() => {
-    console.log("Stop writing to 1.xs");
+    console.log("Stop writing");
     readable.unpipe(writable);
     console.log("Manually close the file stream.");
     writable.end();
+    return "download successed";
   }, time);
 }
 // function write2file(name, content) {
