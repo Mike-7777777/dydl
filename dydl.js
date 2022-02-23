@@ -4,39 +4,60 @@ import md5 from "crypto-js/md5.js";
 import diy from "./diy.js";
 import download from "download";
 import ffmpeg from "js-ffmpeg";
-// testrun: node dydl.js 1819564 "downloads/" 1000
 // const rid = diy.room_id;
 
 const args = process.argv.slice(2);
 const video = args[0];
 const rid = args[1];
+const Url = "https://m.douyu.com/" + rid;
 const localAddress = args[2];
 const filename = rid + getNowFormatDate();
-let video_length = 0
-if(video == 0){
-  video_length = 300;
-}else{
+let video_length = 0;
+
+if (video == 0) {
+  video_length = 350;
+} else {
   video_length = args[3];
 }
 if (!fs.existsSync(localAddress)) {
   fs.mkdirSync(localAddress);
 }
 
-console.log(localAddress + "/" + filename + ".xs");
+console.log(
+  "The local file stored path: " + localAddress + "/" + filename + ".xs"
+);
 
-const Url = "https://m.douyu.com/" + rid;
 getUv().then((res) => {
-  console.log(res);
-  dl(res, localAddress, filename, video_length).then((res) => {
-    console.log(res);
-    if (video == 0) {
-      let from = localAddress+"/"+filename + ".xs";
+  console.log("The stream: " + res);
+  dl(res, localAddress, filename, video_length);
+  if (video == 0) {
+    let from = localAddress + "/" + filename + ".xs";
     let opts = "-ss 00:00:00 -r 1 -vframes 1 -an -f mjpeg";
-    let dist = localAddress+"/"+filename +".jpg";
+    let dist = localAddress + "/" + filename + ".jpg";
     ffmpeg
-    .ffmpeg(from, opts,dist);
-    }
-  })
+      .ffmpeg(from, opts, dist, function (progress) {
+        console.log(progress);
+      })
+      .success(function (json) {
+        // console.log(json);
+        // not good
+        process.exit();
+      })
+      .error(function (error) {
+        console.log(error);
+      });
+  }
+  // dl(res, localAddress, filename, video_length).then((res) => {
+  //   console.log(res);
+  //   if (video == 0) {
+  //     let from = localAddress+"/"+filename + ".xs";
+  //   let opts = "-ss 00:00:00 -r 1 -vframes 1 -an -f mjpeg";
+  //   let dist = localAddress+"/"+filename +".jpg";
+  //   ffmpeg
+  //   .ffmpeg(from, opts,dist);
+  //   }
+  // })
+  return;
 });
 
 async function getUv() {
@@ -103,7 +124,7 @@ async function getUrl(r, param) {
   return realLive;
 }
 
-async function dl(httpAddress, localAddress, filename, time) {
+function dl(httpAddress, localAddress, filename, time) {
   const readable = download(httpAddress);
   const writable = fs.createWriteStream(localAddress + "/" + filename + ".xs");
   readable.pipe(writable);
@@ -112,7 +133,6 @@ async function dl(httpAddress, localAddress, filename, time) {
     readable.unpipe(writable);
     console.log("Manually close the file stream.");
     writable.end();
-    return "download successed";
   }, time);
 }
 // function write2file(name, content) {
