@@ -1,73 +1,66 @@
 import fetch from "node-fetch";
 import fs from "fs";
 import md5 from "crypto-js/md5.js";
-import diy from "./diy.js";
 import download from "download";
 import ffmpeg from "js-ffmpeg";
 // const rid = diy.room_id;
 
-const args = process.argv.slice(2);
-const video = args[0];
-const rid = args[1];
-const Url = "https://m.douyu.com/" + rid;
-const localAddress = args[2];
-const filename = rid + getNowFormatDate();
-let video_length = 0;
+// when doing multiple dydl, the msTime will not work well. Need to solve.
+export function dydl(ifVideo, room, dist, msTime, did) {
+  const video = ifVideo;
+  const rid = room;
+  const url = "https://m.douyu.com/" + rid;
+  const localAddress = dist;
+  const dydid = did;
+  const filename = rid + getNowFormatDate();
+  let video_length = 0;
 
-if (video == 0) {
-  video_length = 350;
-} else {
-  video_length = args[3];
-}
-if (!fs.existsSync(localAddress)) {
-  fs.mkdirSync(localAddress);
-}
-
-console.log(
-  "The local file stored path: " + localAddress + "/" + filename + ".xs"
-);
-
-getUv().then((res) => {
-  console.log("The stream: " + res);
-  dl(res, localAddress, filename, video_length);
   if (video == 0) {
-    let from = localAddress + "/" + filename + ".xs";
-    let opts = "-ss 00:00:00 -r 1 -vframes 1 -an -f mjpeg";
-    let dist = localAddress + "/" + filename + ".jpg";
-    ffmpeg
-      .ffmpeg(from, opts, dist, function (progress) {
-        console.log(progress);
-      })
-      .success(function (json) {
-        // console.log(json);
-        // not good
-        process.exit();
-      })
-      .error(function (error) {
-        console.log(error);
-      });
+    video_length = 1000;
+  } else {
+    video_length = msTime;
   }
-  // dl(res, localAddress, filename, video_length).then((res) => {
-  //   console.log(res);
-  //   if (video == 0) {
-  //     let from = localAddress+"/"+filename + ".xs";
-  //   let opts = "-ss 00:00:00 -r 1 -vframes 1 -an -f mjpeg";
-  //   let dist = localAddress+"/"+filename +".jpg";
-  //   ffmpeg
-  //   .ffmpeg(from, opts,dist);
-  //   }
-  // })
-  return;
-});
+  if (!fs.existsSync(localAddress)) {
+    fs.mkdirSync(localAddress);
+  }
 
-async function getUv() {
+  console.log(
+    "The local file stored path: " + localAddress + "/" + filename + ".xs"
+  );
+
+  getUv(rid, url, dydid).then((res) => {
+    console.log("The stream: " + res);
+    dl(res, localAddress, filename, video_length, function () {
+      if (video == 0) {
+        let from = localAddress + "/" + filename + ".xs";
+        let opts = "-ss 00:00:00 -r 1 -vframes 1 -an -f mjpeg";
+        let dist = localAddress + "/" + filename + ".jpg";
+        // const stats = fs.statSync(localAddress + "/" + filename + ".xs")
+        // console.log(stats.size);
+        // 可以设置一个假while循环 每次i+1 顺便等待下载
+        ffmpeg
+          .ffmpeg(from, opts, dist, function (progress) {
+            console.log(progress);
+          })
+          .success(function () {
+            // not good
+            // process.exit();
+          })
+          .error(function (error) {
+            console.log(error);
+          });
+      }
+      return;
+    });
+  });
+}
+async function getUv(rid, url, dydid) {
   try {
-    const response = await fetch(Url, {
+    const response = await fetch(url, {
       method: "GET",
     });
     let page = await response.text();
     let a = page.match(/(function ub9.*)[\s\S](var.*)/i);
-    let ub9_ex = String(a[0]).replace("ub98484234", "ub98484234_ex");
     let ubf = String(a[1]); //ub98484234的函数内容
     let ubv = String(a[2]); //ub98484234的所需常量
     let ubn = ubf.replace("{", "{" + ubv); //将所需常量放入函数内部 避免出现未初始化报错
@@ -78,18 +71,14 @@ async function getUv() {
     ubn = ubn.replace("function ub98484234", "(function ");
     ubn = ubn + ")";
     let tt = Math.round(new Date().getTime() / 1000).toString();
-    return getUrl(rid, getParam(rid, tt, ubn));
+    return getUrl(rid, getParam(rid, tt, ubn, dydid));
   } catch (error) {
     console.log(error);
   }
 }
 
-function getDyDid() {
-  return "76c262d9fd1fe265974989a000031601";
-}
-
-function getParam(r, tt, ubn) {
-  return eval(ubn)(r, getDyDid(), tt);
+function getParam(r, tt, ubn, dydid) {
+  return eval(ubn)(r, dydid, tt);
 }
 
 async function getUrl(r, param) {
@@ -124,8 +113,8 @@ async function getUrl(r, param) {
   return realLive;
 }
 
-function dl(httpAddress, localAddress, filename, time) {
-  const readable = download(httpAddress);
+function dl(httpAddress, localAddress, filename, time, callback) {
+  const readable = download(httpAddress)
   const writable = fs.createWriteStream(localAddress + "/" + filename + ".xs");
   readable.pipe(writable);
   setTimeout(() => {
@@ -133,25 +122,10 @@ function dl(httpAddress, localAddress, filename, time) {
     readable.unpipe(writable);
     console.log("Manually close the file stream.");
     writable.end();
+    callback();
   }, time);
 }
-// function write2file(name, content) {
-//   try {
-//     const filename = "mike/" + name + ".js";
-//     const data = fs.writeFileSync(filename, content);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
 
-// function write2fileitself(name, content) {
-//   try {
-//     const filename = name + ".js";
-//     const data = fs.appendFileSync(filename, content);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
 function getNowFormatDate() {
   var date = new Date();
   var seperator1 = "-";

@@ -1,7 +1,7 @@
 {
   "type": "module",
-  "name": "dydlnode",
-  "version": "1.0.0",
+  "name": "dydl",
+  "version": "1.0.11",
   "description": "downloader of douyu tv",
   "main": "dydl.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "download": "^8.0.0",
     "fs": "0.0.1-security",
     "grunt": "^1.4.1",
-    "js-ffmpeg": "file:js-ffmpeg",
-    "node-fetch": "^3.1.0"
+    "js-ffmpeg": "0.0.35",
+    "node-fetch": "^3.2.0"
   }
 }

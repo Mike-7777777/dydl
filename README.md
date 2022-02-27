@@ -9,9 +9,9 @@ DYDL是一个用NodeJS实现的，可以获取斗鱼直播间视频流地址并�
 ```
 npm install
 
-node dydl.js [视频/截图] [房间号] [保存文件的目录(文件夹)] [需要下载的直播长度(ms)]
+node dydl.js [视频/截图] [房间号] [保存文件的目录(文件夹)] [需要下载的直播长度(ms)] [cookie中的did]
 
-node dydl.js [video/screenshot] [room id] [dist folder] [length of video(ms)]
+node dydl.js [video/screenshot] [room id] [dist folder] [length of video(ms)] [did in cookie]
 ```
 
 例子：
@@ -24,17 +24,15 @@ node dydl.js 52004 0 downloads // 将52004的截图保存在downloads文件夹�
 Example:
 
 ```
-node dydl.js 52004 1 downloads 10000 // download 10000ms video from room 52004, and save in folder 'downloads'
-node dydl.js 52004 0 downloads // download a image from room 52004, and save in folder 'downloads'
+node dydl.js 52004 1 downloads 10000 6************// download 10000ms video from room 52004, and save in folder 'downloads'
+node dydl.js 52004 0 downloads 6************// download a image from room 52004, and save in folder 'downloads'
 ```
 
 Windows下如果没有Node环境，可以使用[可执行文件](https://github.com/Mike-7777777/dydl/releases/)。
 
 ```
 //视频
-dydl 1 [房间号] [保存文件的目录(文件夹)] [需要下载的直播长度(ms)]
-//截图
-dydl 0 [房间号] [保存文件的目录(文件夹)]
+dydl [房间号] [保存文件的目录(文件夹)] [需要下载的直播长度(ms)]
 ```
 
 # To-do List
